@@ -1,0 +1,77 @@
+NodeList = {'S': 10, 'A': 9, 'B': 7, 'C': 8, 'D': 8, 'H': 6, 'L': 6, 'F': 6, 'G': 3, 'I': 4,
+            'J': 4, 'E': 0, 'K': 3}
+gList = { 'S' : [['A' , 7],['B' , 2],['C', 3]], 'A' : [['D',4],['B',3]], 'B':[['D',4],['H',1]],
+'C': [['L', 2]], 'D': [['F', 5]], 'H': [['F', 3], ['G', 2]], 'L': [['I', 4], ['J', 4]], 'G': [['E', 2]], 'I': [
+    ['K', 4]],
+'J': [['K', 4]], 'K': [['E', 5]]}
+SuccList = {'S': [['A', 16], ['B', 9], ['C', 11]], 'A': [['D', 12], ['B', 10]], 'B': [['D', 12], ['H', 7]],
+'C': [['L', 8]], 'D': [['F', 11]], 'H': [['F', 9], ['G', 5]], 'L': [['I', 8], ['J', 8]], 'G': [['E', 2]], 'I': [
+    ['K', 7]],
+'J': [['K', 7]], 'K': [['E', 5]]}
+Start, Goal = 'S', 'E'
+Closed = list()
+SUCCESS = True
+FAILURE = False
+State = FAILURE
+
+
+def GOALTEST(N):
+    if N == Goal:
+        return True
+    else:
+        return False
+
+
+def MOVEGEN(N):
+    New_list = list()
+    if N in SuccList.keys():
+        New_list = SuccList[N]
+
+    return New_list
+
+
+def APPEND(L1, L2):
+    New_list = list(L1) + list(L2)
+    return New_list
+
+
+def SORT(L):
+    L.sort(key=lambda x: x[1])
+    return L
+
+
+def AStarSearch():
+    S = 0
+    if Start in NodeList.keys():
+        S = NodeList[Start]
+    OPEN = [[Start, S]]
+    CLOSED = list()
+    global State
+    global Closed
+    while (len(OPEN) != 0) and (State != SUCCESS):
+        print("------------")
+        N = OPEN[0]
+        print("N=", N)
+        del OPEN[0]  # delete the node we picked
+
+        if GOALTEST(N[0]) == True:
+            State = SUCCESS
+            CLOSED = APPEND(CLOSED, [N])
+            print("CLOSED=", CLOSED)
+        else:
+            CLOSED = APPEND(CLOSED, [N])
+            print("CLOSED=", CLOSED)
+            CHILD = MOVEGEN(N[0])
+            print("CHILD=", CHILD)
+            for val in OPEN:
+                if val in CHILD:
+                    CHILD.remove(val)
+            for val in CLOSED:
+                if val in CHILD:
+                    CHILD.remove(val)
+            OPEN = APPEND(CHILD, OPEN)  # append movegen elements to OPEN
+            print("Unsorted OPEN=", OPEN)
+            SORT(OPEN)
+            print("Sorted OPEN=", OPEN)
+    Closed = CLOSED
+    return State

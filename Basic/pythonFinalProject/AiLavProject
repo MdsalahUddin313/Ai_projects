@@ -1,0 +1,110 @@
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plot
+from sklearn import metrics
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split
+from tabulate import tabulate
+from sklearn import tree
+
+df=pd.read_csv('filters_data_100')
+print( df.head(5))
+x=df.drop('Price',axis=1).values
+y=df['Price'].values
+#print("x values",x)
+#print("y values",y)
+#Train our Data
+xTrain, xTest, yTrain, yTest = train_test_split(x,y,test_size=.91,random_state=0)
+LR =LinearRegression()
+LR.fit(xTrain,yTrain)
+y_predict = LR.predict(xTest)
+df2 = pd.DataFrame({'Actual': yTest.flatten(), 'Predicted': y_predict.flatten(),'Difference ': yTest-y_predict})
+print(df2)
+from sklearn.metrics import r2_score
+rscore=r2_score(yTest,y_predict)
+plot.figure(figsize=(15,18))
+plot.scatter(yTest,y_predict)
+plot.xlabel("Actual")
+plot.ylabel("Predicted")
+plot.title("Actual vs Predicted in Linear Regression")
+plot.show()
+df1 = pd.DataFrame({'Actual': yTest.flatten(), 'Predicted': y_predict.flatten()})
+df1.plot(kind='bar')
+plot.grid(which='major', color='green')
+plot.grid(which='minor', color='black')
+plot.show()
+
+#Let's find Errors
+# Displaying errors
+# Displaying errors
+LMe=metrics.mean_absolute_error(yTest, y_predict)
+LMse=metrics.mean_squared_error(yTest, y_predict)
+LRMse=np.sqrt(metrics.mean_squared_error(yTest,y_predict))
+Lrt=metrics.r2_score(yTest,y_predict)
+LaccuracyScore = LR.score (xTest,yTest)
+
+from sklearn.preprocessing import StandardScaler
+import warnings
+warnings.simplefilter("ignore")
+
+scaler = StandardScaler()
+scaler.fit(xTrain)
+xTrain = scaler.transform(xTrain)
+xTest = scaler.transform(xTest)
+#Neural Network
+from sklearn.neural_network import MLPClassifier
+mlp = MLPClassifier()
+mlp.fit(xTrain,yTrain)
+predictions = mlp.predict(xTest)
+plot.scatter(yTest,predictions)
+plot.xlabel("Actual")
+plot.ylabel("Predicted")
+plot.title("Actual vs Predicted in Neural Network")
+plot.show()
+NaccuracyScore = accuracy_score(yTest,predictions)
+NMe = metrics.mean_absolute_error(yTest, predictions)
+Nmse = metrics.mean_squared_error(yTest, predictions)
+Nmsqt = np.sqrt(metrics.mean_squared_error(yTest,predictions))
+Nrt=metrics.r2_score(yTest,predictions)
+#NaccuracyScore = accuracy_score(yTest,predictions)
+#print('Decision Trees Accuracy',DaccuracyScore)
+
+#Decission Trees
+model = tree.DecisionTreeClassifier()
+#Page 4 of 6
+model.fit(xTrain, yTrain)
+# testing
+model_predictions = model.predict(xTest)
+# accuracy of prediction
+plot.scatter(yTest,model_predictions)
+plot.xlabel("Actual")
+plot.ylabel("Predicted")
+plot.title("Actual vs Predicted in Decission Tree")
+plot.show()
+DMe = metrics.mean_absolute_error(yTest, model_predictions)
+Dmse = metrics.mean_squared_error(yTest, model_predictions)
+Dmsqt = np.sqrt(metrics.mean_squared_error(yTest,model_predictions))
+Drt=metrics.r2_score(yTest,model_predictions)
+DaccuracyScore = accuracy_score(yTest, model_predictions)
+
+
+
+#print(tabulate([['Mean Absolute Error', LMe,NMe], ['Mean Squared Error', LMse,Nmse],['Root Mean Squared',LRMse,Nmsqt],['Root Score',Lrt,Nrt]], headers=['Name', 'Linear Regression','Neural Network'], tablefmt='orgtbl'))
+print(tabulate([['Mean Absolute Error', LMe,DMe,NMe], ['Mean Squared Error', LMse,Dmse,Nmse],['Root Mean Squared',LRMse,Dmsqt,Nmsqt],['Accuracy Score',LaccuracyScore,DaccuracyScore,NaccuracyScore],['Root Score',Lrt,Drt,Nrt]], headers=['Name', 'Linear Regression','Decision Tree','Neural Network'], tablefmt='orgtbl'))
+
+
+
+print("\n\n######################### You can Predict any filters Price #####################\n")
+print("Don't skip any features input.If you don't want any features then put 0 as input\n")
+#Predict price from user input Datas Stages,Production_Capacity(GPD),UV,Usable_Person,Storage_Capcity(Litre),rating
+stages=input("Number Of Stages(1-9):")
+production_capacity=input("Number Of Production Capacity (GPD):")
+uv=input("Number Of UV machine(1 or 0):")
+use_person=input("Number Of Usable Persons per day:")
+capacity=input("Number Of Storage capacity of Filter(1-20 Litres):")
+rating=input("Rating::")
+xInputData = np.array([stages,production_capacity,uv,use_person,capacity,rating], dtype=float)
+predict_data=LR.predict([xInputData])
+print("Your Desired Filters Possible Price is:",predict_data,"Tk")

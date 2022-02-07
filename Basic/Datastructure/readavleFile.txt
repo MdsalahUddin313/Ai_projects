@@ -1,0 +1,2 @@
+Exceptions are unexpected events that occur during the execution of a program.
+An exception might result from a logical error or an unanticipated situation.
